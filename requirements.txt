@@ -1,0 +1,16 @@
+# ── Mahd (مهد) — Baby Safety Monitor ──────────────────────────────────────────
+# Core app
+streamlit>=1.35.0
+
+# Computer Vision & AI
+ultralytics>=8.2.0
+opencv-python-headless>=4.9.0   # headless = no GUI dependency (required on cloud)
+numpy>=1.24.0
+
+# Supabase (Auth + Database)
+supabase>=2.4.0
+gotrue>=2.4.0
+
+# Utilities
+Pillow>=10.0.0
+python-dotenv>=1.0.0
