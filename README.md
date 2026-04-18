@@ -1,63 +1,48 @@
-# Mahd (مهد) — Deployment Guide
+Mahd: AI-Powered Infant Safety Monitoring System
+Mahd is a specialized monitoring application designed to enhance infant safety during sleep.
 
-## File Structure
-```
-mahd_app/
-├── app.py                   ← Main Streamlit application
-├── requirements.txt         ← Python dependencies
-├── body_best.pt             ← YOLOv8 body model  (add manually)
-├── face_best.pt             ← YOLOv8 face model  (add manually)
-├── supabase_schema.sql      ← Run once in Supabase SQL Editor
-└── .streamlit/
-    └── secrets.toml         ← Supabase credentials (DO NOT commit)
-```
+The system utilizes Computer Vision and Deep Learning to analyze video feeds, specifically detecting infant body positions and facial orientation to mitigate risks associated with Sudden Infant Death Syndrome (SIDS).
 
-## Step-by-Step Setup
+Project ArchitectureThe system is built using a decoupled architecture consisting of a mobile frontend and a high-performance computer vision backend.
 
-### 1. Supabase
-1. Create a free project at https://supabase.com
-2. Go to **SQL Editor** and run the contents of `supabase_schema.sql`
-3. Go to **Authentication → Providers → Phone** and enable it (uses Twilio)
-4. Copy your **Project URL** and **anon/public API key** from Project Settings → API
+Frontend:
 
-### 2. Secrets
-Edit `.streamlit/secrets.toml`:
-```toml
-SUPABASE_URL = "https://xxxx.supabase.co"
-SUPABASE_KEY = "eyJhbGci..."
-```
+Flutter
 
-### 3. Model Weights
-Place your two model files in the project root:
-- `body_best.pt` — detects `back` / `stomach`
-- `face_best.pt` — detects `head` / `nose`
+FrameworkUser Interface: Developed with Flutter to provide a responsive and intuitive experience across mobile platforms.
 
-These are the models trained in `Computer_vision2.ipynb`.
-Download them from your Colab session or Google Drive before deploying.
+Media Handling: Features integrated video selection and processing modules to handle high-resolution media from local storage or live streams.
 
-### 4. Local Run
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+API Integration: Communication with the backend is handled via asynchronous HTTP requests to ensure a seamless user experience.
 
-### 5. Streamlit Cloud Deployment
-1. Push to a GitHub repo (add `*.pt`, `secrets.toml` to `.gitignore`)
-2. Go to https://share.streamlit.io → New App
-3. Select your repo and set `app.py` as the main file
-4. Under **Advanced → Secrets**, paste your `secrets.toml` contents
-5. Upload model weights via `st.file_uploader` workaround or store in cloud storage
+Backend: 
 
-## Safety Logic Summary
-| Detected           | Status                     | Action                            |
-|--------------------|----------------------------|-----------------------------------|
-| stomach (< 10 s)   | ⚠️ WARNING + countdown    | Orange bar, timer visible         |
-| stomach (≥ 10 s)   | 🚨 DANGER                  | Red bar + emergency call buttons  |
-| back + nose        | ✅ SAFE                    | Green bar                         |
-| back, no nose      | ⚠️ Face May Be Covered     | Orange bar                        |
-| nothing detected   | 🔍 SCANNING                | Grey bar                          |
+FastAPI & YOLOv8API Layer:
 
-## Notes
-- On Streamlit Cloud, `tel:` links only work when opened on a mobile browser.
-- `opencv-python-headless` is used (not `opencv-python`) to avoid GUI library issues on cloud.
-- The danger alert is logged once per video session to avoid duplicate rows.
+Built with FastAPI for high-performance, asynchronous request handling.
+
+Inference Engine: Utilizes the YOLOv8 (You Only Look Once) architecture for real-time object detection.
+
+Models:
+
+Body Detection: Specialized model to identify the infant's physical boundaries and sleeping posture.
+
+Face Analysis: Focused detection to ensure the infant's respiratory pathways are not obstructed.
+
+Technical Specifications
+
+Inference: The YOLOv8 model processes the frame to identify specific classes (e.g., infant, face).Result Extraction: The backend calculates bounding box coordinates and confidence scores.
+
+Response: Data is returned to the frontend in JSON format for visual rendering of detection boxes.
+
+Prerequisites
+
+Flutter SDK (3.x or higher)
+
+Python (3.9 or higher)
+
+Ultralytics YOLO environment
+
+Required Python packages: fastapi, uvicorn, opencv-python-headless, pillowLocal SetupBackend SetupNavigate to the backend directory and install dependencies
+
+Security and PrivacyThe system is designed to prioritize data privacy by focusing on localized inference processing where possible, ensuring that sensitive monitoring data is handled securely within the defined API protocols.
